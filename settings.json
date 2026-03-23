@@ -105,7 +105,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tmux display-message '⚠️ Claude 承認待ち' 2>/dev/null; OS=$(uname -s); if [ \"$OS\" = \"Darwin\" ]; then osascript -e 'display notification \"承認が必要です\" with title \"Claude Code\"' 2>/dev/null; elif grep -qi microsoft /proc/version 2>/dev/null; then powershell.exe -c \"Add-Type -AssemblyName System.Windows.Forms; \\$n = New-Object System.Windows.Forms.NotifyIcon; \\$n.Icon = [System.Drawing.SystemIcons]::Information; \\$n.BalloonTipTitle = 'Claude Code'; \\$n.BalloonTipText = '承認が必要です'; \\$n.Visible = \\$true; \\$n.ShowBalloonTip(5000)\" 2>/dev/null; fi || true"
+            "command": "~/.claude/hooks/notify.sh '⚠️ 承認が必要です'"
           }
         ]
       }
@@ -115,7 +115,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tmux display-message '✅ Claude 完了' 2>/dev/null; OS=$(uname -s); if [ \"$OS\" = \"Darwin\" ]; then osascript -e 'display notification \"Claude が応答を完了しました\" with title \"Claude Code\"' 2>/dev/null; elif grep -qi microsoft /proc/version 2>/dev/null; then powershell.exe -c \"Add-Type -AssemblyName System.Windows.Forms; \\$n = New-Object System.Windows.Forms.NotifyIcon; \\$n.Icon = [System.Drawing.SystemIcons]::Information; \\$n.BalloonTipTitle = 'Claude Code'; \\$n.BalloonTipText = '応答を完了しました'; \\$n.Visible = \\$true; \\$n.ShowBalloonTip(5000)\" 2>/dev/null; fi || true"
+            "command": "echo stop_fired >> /tmp/claude-notify.log && ~/.claude/hooks/notify.sh '✅ 応答を完了しました'"
           }
         ]
       }

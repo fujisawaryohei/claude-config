@@ -28,5 +28,18 @@ fi
 ln -s "$DOTDIR/skills" ~/.claude/skills
 echo "Linked skills → ~/.claude/skills"
 
+# Link hooks directory
+if [ -L ~/.claude/hooks ]; then
+  rm ~/.claude/hooks
+elif [ -d ~/.claude/hooks ]; then
+  echo "WARNING: ~/.claude/hooks already exists as a real directory."
+  echo "Move or remove it manually, then re-run this script."
+  exit 1
+fi
+
+ln -s "$DOTDIR/hooks" ~/.claude/hooks
+chmod +x "$DOTDIR/hooks/notify.sh"
+echo "Linked hooks → ~/.claude/hooks"
+
 echo ""
-echo "Done! Skills and settings are now active globally."
+echo "Done! Skills, hooks, and settings are now active globally."
