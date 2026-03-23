@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 description: 基本機能設計書（docs/basic-functional-design.md）を対話形式で作成する。「基本設計」「画面設計」「データモデルを設計したい」などの指示で起動。
 ---

@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 description: タスク一覧（.steering/tasklist.md）を対話形式で作成する。「タスク一覧を作りたい」「tasklist」「チケット管理を整理したい」などの指示で起動。
 ---

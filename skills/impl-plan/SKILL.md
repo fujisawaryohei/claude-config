@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 name: impl-plan
 description: 既存プロジェクトへの機能追加・改修の実装プランを策定するスキル。ユーザーが「新機能を追加したい」「実装プランを立てたい」「〜を実装するにはどうすればいい」「追加開発の計画をしたい」「機能追加の設計をしたい」などと言った場合は必ずこのスキルを使うこと。既存コードへの影響分析・タスク分割まで行い、create-tasklist への入力となるプランを出力する。

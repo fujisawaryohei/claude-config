@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 name: parallel-dev
 description: tmux と git worktree を使って複数のエージェントに並列でタスクを実行させるコマンドを生成するスキル。ユーザーが「並列で開発したい」「複数エージェントに振りたい」「並列実行したい」「tmuxで並列」「worktreeで並列」などと言った場合は必ずこのスキルを使うこと。タスクIDを指定された場合も、並列実行の文脈であればこのスキルを使う。

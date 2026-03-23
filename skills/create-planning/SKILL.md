@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 description: 新プロジェクトの企画書（docs/planning.md）を対話形式で作成する。「企画書を作りたい」「planning」「プランニング」などの指示で起動。
 ---
