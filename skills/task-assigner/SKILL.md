@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 name: task-assigner
 description: tasklist.md から次に取り組むタスクを選定し、作業指示ファイル（.steering/TASK-xxx_{日付}.md）にブレイクダウンして、ペアプロ形式で実装を1ステップずつ導くスキル。ユーザーが「タスクを振って」「次何やる」「作業指示出して」「ペアプロしよう」「どのタスクから着手すべきか」などと言った場合は必ずこのスキルを使うこと。セッション開始時に進行中タスクがある場合も自動的にこのスキルを使う。

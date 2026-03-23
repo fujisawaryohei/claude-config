@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 description: 要件定義書（docs/requirements.md）を対話形式で作成する。「要件定義」「requirements」「機能要件を整理したい」などの指示で起動。
 ---

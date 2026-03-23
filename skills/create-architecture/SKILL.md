@@ -1,3 +1,4 @@
+<!-- MIT License - Copyright (c) 2026 Affaan Mustafa - https://github.com/affaan-m/everything-claude-code -->
 ---
 description: アーキテクチャ設計書（docs/architecture.md）を対話形式で作成する。「アーキテクチャ設計」「architecture」「技術構成を整理したい」などの指示で起動。
 ---
