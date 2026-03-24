@@ -77,5 +77,17 @@ fi
 ln -s "$DOTDIR/rules" ~/.claude/rules
 echo "Linked rules → ~/.claude/rules"
 
+# Link scripts directory
+if [ -L ~/.claude/scripts ]; then
+  rm ~/.claude/scripts
+elif [ -d ~/.claude/scripts ]; then
+  echo "WARNING: ~/.claude/scripts already exists as a real directory."
+  echo "Move or remove it manually, then re-run this script."
+  exit 1
+fi
+
+ln -s "$DOTDIR/scripts" ~/.claude/scripts
+echo "Linked scripts → ~/.claude/scripts"
+
 echo ""
-echo "Done! Skills, hooks, commands, agents, rules, and settings are now active globally."
+echo "Done! Skills, hooks, commands, agents, rules, scripts, and settings are now active globally."
