@@ -41,5 +41,41 @@ ln -s "$DOTDIR/hooks" ~/.claude/hooks
 chmod +x "$DOTDIR/hooks/notify.sh"
 echo "Linked hooks → ~/.claude/hooks"
 
+# Link commands directory
+if [ -L ~/.claude/commands ]; then
+  rm ~/.claude/commands
+elif [ -d ~/.claude/commands ]; then
+  echo "WARNING: ~/.claude/commands already exists as a real directory."
+  echo "Move or remove it manually, then re-run this script."
+  exit 1
+fi
+
+ln -s "$DOTDIR/commands" ~/.claude/commands
+echo "Linked commands → ~/.claude/commands"
+
+# Link agents directory
+if [ -L ~/.claude/agents ]; then
+  rm ~/.claude/agents
+elif [ -d ~/.claude/agents ]; then
+  echo "WARNING: ~/.claude/agents already exists as a real directory."
+  echo "Move or remove it manually, then re-run this script."
+  exit 1
+fi
+
+ln -s "$DOTDIR/agents" ~/.claude/agents
+echo "Linked agents → ~/.claude/agents"
+
+# Link rules directory
+if [ -L ~/.claude/rules ]; then
+  rm ~/.claude/rules
+elif [ -d ~/.claude/rules ]; then
+  echo "WARNING: ~/.claude/rules already exists as a real directory."
+  echo "Move or remove it manually, then re-run this script."
+  exit 1
+fi
+
+ln -s "$DOTDIR/rules" ~/.claude/rules
+echo "Linked rules → ~/.claude/rules"
+
 echo ""
-echo "Done! Skills, hooks, and settings are now active globally."
+echo "Done! Skills, hooks, commands, agents, rules, and settings are now active globally."
