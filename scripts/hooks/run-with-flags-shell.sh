@@ -15,8 +15,12 @@ if [[ -z "$HOOK_ID" || -z "$REL_SCRIPT_PATH" ]]; then
   exit 0
 fi
 
-# Ask Node helper if this hook is enabled
-ENABLED="$(node "${PLUGIN_ROOT}/scripts/hooks/check-hook-enabled.js" "$HOOK_ID" "$PROFILES_CSV" 2>/dev/null || echo yes)"
+# Ask Node helper if this hook is enabled.
+# Prefer the node binary that spawned this script (via CLAUDE_NODE_PATH env var
+# if set by Claude Code), falling back to 'node' in PATH. The '|| echo yes'
+# ensures the hook runs even when node/asdf fails due to .tool-versions mismatch.
+NODE_BIN="${CLAUDE_NODE_PATH:-node}"
+ENABLED="$("$NODE_BIN" "${PLUGIN_ROOT}/scripts/hooks/check-hook-enabled.js" "$HOOK_ID" "$PROFILES_CSV" 2>/dev/null || echo yes)"
 if [[ "$ENABLED" != "yes" ]]; then
   printf '%s' "$INPUT"
   exit 0
