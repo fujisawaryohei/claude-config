@@ -98,8 +98,11 @@ async function main() {
     process.exit(0);
   }
 
-  // Legacy path: spawn a child Node process for hooks without run() export
-  const result = spawnSync('node', [scriptPath], {
+  // Legacy path: spawn a child Node process for hooks without run() export.
+  // Use process.execPath (the actual node binary) instead of 'node' to bypass
+  // version manager shims (asdf, nvm, etc.) that read .tool-versions/.nvmrc
+  // from process.cwd() and may not have the required version installed.
+  const result = spawnSync(process.execPath, [scriptPath], {
     input: raw,
     encoding: 'utf8',
     env: process.env,

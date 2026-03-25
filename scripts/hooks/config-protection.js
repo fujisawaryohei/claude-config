@@ -64,24 +64,35 @@ const PROTECTED_FILES = new Set([
 /**
  * Exportable run() for in-process execution via run-with-flags.js.
  * Avoids the ~50-100ms spawnSync overhead when available.
+ *
+ * Accepts rawInput as a JSON string (run-with-flags.js passes raw stdin).
+ * Returns rawInput on allow, calls process.exit(2) on block so that
+ * run-with-flags.js (which always exits 0 after run()) correctly propagates
+ * the block exit code.
  */
-function run(input) {
-  const filePath = input?.tool_input?.file_path || input?.tool_input?.file || '';
-  if (!filePath) return { exitCode: 0 };
+function run(rawInput) {
+  let filePath = '';
+  try {
+    const input = typeof rawInput === 'string' ? JSON.parse(rawInput) : rawInput;
+    filePath = input?.tool_input?.file_path || input?.tool_input?.file || '';
+  } catch {
+    return rawInput; // Parse error: allow
+  }
+
+  if (!filePath) return rawInput;
 
   const basename = path.basename(filePath);
   if (PROTECTED_FILES.has(basename)) {
-    return {
-      exitCode: 2,
-      stderr:
-        `BLOCKED: Modifying ${basename} is not allowed. ` +
-        `Fix the source code to satisfy linter/formatter rules instead of ` +
-        `weakening the config. If this is a legitimate config change, ` +
-        `disable the config-protection hook temporarily.`,
-    };
+    process.stderr.write(
+      `BLOCKED: Modifying ${basename} is not allowed. ` +
+      `Fix the source code to satisfy linter/formatter rules instead of ` +
+      `weakening the config. If this is a legitimate config change, ` +
+      `disable the config-protection hook temporarily.\n`
+    );
+    process.exit(2);
   }
 
-  return { exitCode: 0 };
+  return rawInput;
 }
 
 module.exports = { run };
@@ -109,17 +120,8 @@ process.stdin.on('end', () => {
     return;
   }
 
-  try {
-    const input = raw.trim() ? JSON.parse(raw) : {};
-    const result = run(input);
-
-    if (result.exitCode === 2) {
-      process.stderr.write(result.stderr + '\n');
-      process.exit(2);
-    }
-  } catch {
-    // Keep hook non-blocking on parse errors.
-  }
-
+  // run() calls process.exit(2) for blocked files, so stdout.write
+  // below is only reached for allowed files.
+  run(raw.trim() ? raw : '{}');
   process.stdout.write(raw);
 });
