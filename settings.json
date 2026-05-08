@@ -339,6 +339,17 @@
   "enableAllProjectMcpServers": false,
   "skipDangerousModePermissionPrompt": true,
   "enabledPlugins": {
-    "skill-creator@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true,
+    "aws-core@agent-toolkit-for-aws": true,
+    "aws-agents@agent-toolkit-for-aws": true,
+    "aws-data-analytics@agent-toolkit-for-aws": true
+  },
+  "extraKnownMarketplaces": {
+    "agent-toolkit-for-aws": {
+      "source": {
+        "source": "github",
+        "repo": "aws/agent-toolkit-for-aws"
+      }
+    }
   }
 }
