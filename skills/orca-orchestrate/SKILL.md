@@ -14,8 +14,8 @@ description: |
 disable-model-invocation: true
 ---
 
-<!-- 下書き（2026-10-09・ある PJ の 3 本の並行作業から起こした）。
-     実運用で 1 回回して直すまで disable-model-invocation: true のままにする -->
+<!-- 下書き（2026-10-09・ある PJ の 3 本の並行作業から起こした。同日に Orca で fitbit-agent の 2 本を Phase 6 まで試運転して直した）。
+     Phase 7〜9（動作確認・explainer・commit/PR）を実運用で 1 回回して直すまで disable-model-invocation: true のままにする -->
 
 # orca-orchestrate — cmux / Orca のペインで並行実装を回すオーケストレーター
 
@@ -28,10 +28,15 @@ disable-model-invocation: true
 | どちらの中か | `bash scripts/mux.sh backend` | `cmux identify` が通る | `$ORCA_TERMINAL_HANDLE` がある |
 | 自分のペイン | `mux.sh self` | `surface:N` | `term_…` |
 | 送る（Enter まで） | `mux.sh send <ref> "<文>"` | `cmux send` ＋ `send-key Enter` | `orca terminal send --enter` |
-| 画面を読む | `mux.sh read <ref> [<行数>]` | `cmux read-screen` | `orca terminal read --limit` |
+| 画面を読む | `mux.sh read <ref> [<行数>]` | `cmux read-screen` | `orca terminal show` の preview（画面の最後の数行） |
+| ワーカーが止まったか | `scripts/watch-idle.sh <ref> …`（Orca のみ） | — | preview に処理中の表示（`…`・tokens）が無い状態が 15 秒続いた |
 | ワーカーからの通知 | `<orchestration_dir>/notify.sh` | `cmux notify` | worktree のカードのコメント ＋ 未読の印 |
 
-Orca ではペインに名前を付けられない（`terminal rename` はタブの名前）。ペインは `launch-panes.sh` の出力の対応表で見分ける。Orca の CLI の全体と確かめた振る舞いは [references/orca-cli.md](references/orca-cli.md)。
+Orca で気をつけること（詳しくは [references/orca-cli.md](references/orca-cli.md)・[references/pitfalls.md](references/pitfalls.md)）:
+- ペインに名前を付けられない（`terminal rename` はタブの名前）。ペインは `launch-panes.sh` の出力の対応表（`<orchestration_dir>/panes.tsv` に保存する）で見分ける
+- `orca terminal read` は Claude Code の TUI に対して最後に描き直した 1 行しか返さない。画面は `mux.sh read`（preview）で読む。preview は止まっているときだけ数行で、処理中はスピナーの 1 行
+- `orca terminal split --command` は時間切れで失敗することがある。`mux.sh split` は分割してからコマンドを送る
+- ペインの ref を空のまま渡すと、Orca は「アクティブなターミナル」を操作する。`mux.sh` は空の ref を拒む
 
 ## 流れ
 
@@ -65,7 +70,8 @@ Orca ではペインに名前を付けられない（`terminal rename` はタブ
 2. **PJ のプロファイルを読む**（[references/profile.md](references/profile.md)）。PJ のしきたり（検証・レビュー・設計書の同期・コミットの規約・禁止事項など）で判断するため
    - 置き場は **既定で git 管理外の `~/.claude/orca-orchestrate/profiles/<PJ 名>/`**（`profile.md`・`config.yml`・`digest.txt`）。公開してよい PJ だけ、この skill の `profiles/<PJ 名>/`（git 管理）にも置ける。PJ 名はメイン checkout のフォルダ名（`bash scripts/harness-digest.sh name`）
    - 有れば `bash scripts/harness-digest.sh diff <置き場>/<PJ 名>/digest.txt` で、ハーネスが変わっていないか見る。変わったファイルがあれば、その分だけ読み直して直す
-   - 無ければ、サブエージェントでハーネスを走査して作り、**ユーザーに見せて確かめてから**保存する。どちらの置き場にするかも聞く（答えが無ければ git 管理外）
+   - 無ければ、サブエージェントでハーネスを走査して作り、**ユーザーに見せて確かめてから**保存する。どちらの置き場にするかも聞く（答えが無ければ git 管理外）。走査の結果は推測を含むので、検証のコマンドなど確かめられるものは Phase 3 の基準の検証で裏を取り、違えばプロファイルを直す
+   - リポジトリの CLAUDE.md が**必須のワークフロー**（例: AI-DLC の段ごとの承認・記録）を宣言していないかを見る。ワーカーは worktree で CLAUDE.md を読み込むので、何も言わないとそれを始める。回すか回さないかを Phase 1 で聞き、`common.md` に書く
    - リポジトリに `.claude/orca-orchestrate.yml` があれば、`config.yml` よりそちらを優先する
 3. ローカルの base ブランチが origin より遅れていないか確かめ、遅れていれば `git fetch` して **origin の base から切る**
 
@@ -87,6 +93,7 @@ Orca ではペインに名前を付けられない（`terminal rename` はタブ
 ### Phase 3: 準備
 
 1. worktree を作る（ディレクトリとブランチの両方にタスク ID。命名は設定の `worktree.dir`・`branch`）。初期設定のコマンドを回し、**結果の表示を信じず、必須の成果物があるかを自分で確かめる**（[references/pitfalls.md](references/pitfalls.md) の「初期設定が黙って失敗する」）
+   - **基準の検証を 1 回回す。** worktree で `verify.default` を回し、何件通り何件落ちるかを記録する。base の時点で落ちるテスト（既知の失敗）があれば、メインの checkout でも同じかを比べて原因を確かめ、`common.md` の「検証」に件数と名前を書く（ワーカーが直しに行ったり、回帰と取り違えたりしないため）
 2. 置き場 `<orchestration_dir>`（既定 `<worktree の親>/<作業名>-orchestration/`）を作り、次を置く
    - `common.md`: [templates/common.md](templates/common.md) を埋める（並行セッションの表・境界の約束・守ること・素材・報告の形）
    - `sN-<タスク ID>.md`: [templates/brief.md](templates/brief.md) を埋めたタスクごとの指示書（チケットが無いときは、Phase 1 で書いた目的・完了条件をそのまま入れる。ワーカーが読むのは指示書だけになるため、背景を省かない）
@@ -97,7 +104,7 @@ Orca ではペインに名前を付けられない（`terminal rename` はタブ
 
 ### Phase 4: 起動
 
-[scripts/launch-panes.sh](scripts/launch-panes.sh) を使う（または同じ手順を手で）。
+[scripts/launch-panes.sh](scripts/launch-panes.sh) を使う（または同じ手順を手で）。出力（呼び名 → ペインの ref）は `| tee <orchestration_dir>/panes.tsv` で残す。
 
 0. **ワーカーのモデルは、プロファイルの `config.yml` の `workers.model`（タスクごとは `workers.per_task`）で決まる。** `launch-panes.sh --config <config.yml>` が読んで `claude --model` に渡す（プロンプトで聞かない・決定論的にする）
    - `workers.model` が無いときだけ、起動の前にユーザーに聞き（そのとき使える最新のモデルと「指定しない」）、答えを `config.yml` に書いてから起動する
@@ -108,11 +115,12 @@ Orca ではペインに名前を付けられない（`terminal rename` はタブ
 3. 各ペインで「worktree に cd → `claude '<common.md> と <指示書> を読み、その指示に従って作業してください。ステータスは <status/> に書いてください。'`」を回す
 4. `mux.sh read <ref>` で全ペインが指示書を読み始めたことを確かめる
 5. ユーザーに、許可の確認は各ペインで直接応えるよう伝える（オーケストレーターは推奨を出すが、キーは押さない。Phase 5 の 2）
+   - ワーカーは、ユーザーの既定の許可のモードで起動する。auto モードなら分類器が許可を判断するので、確認はほとんど出ない（2026-10-09 の試運転では 1 回も出なかった）。そのときは、指示書の「しないこと」と common.md の「守ること」が実質の歯止めになる
 
 ### Phase 5: 監視と解説
 
 1. Monitor で [scripts/watch-status.sh](scripts/watch-status.sh) を張る（30 分で切れるので、切れたら張り直す）
-2. 許可の確認も Monitor で [scripts/watch-permissions.sh](scripts/watch-permissions.sh) を張って見る。確認が出たら、そのペインの画面を読み、**推奨（許可 ／ 拒否 ／ 迷う）と理由**をユーザーに出す。キーは送らない（決めるのはユーザー。オーケストレーターが押すと、許可の仕組みを素通りすることになる）
+2. 許可の確認も Monitor で [scripts/watch-permissions.sh](scripts/watch-permissions.sh) を張って見る。**Orca では [scripts/watch-idle.sh](scripts/watch-idle.sh) も張る**（ワーカーが止まったことを出す。止まった理由は分からないので、ステータスファイルと `mux.sh read` で確かめる）。確認が出たら、そのペインの画面を読み、**推奨（許可 ／ 拒否 ／ 迷う）と理由**をユーザーに出す。キーは送らない（決めるのはユーザー。オーケストレーターが押すと、許可の仕組みを素通りすることになる）
    - 許可を推す: 自分の worktree の中の読み書き・テスト・ロック付きの入口からの検証・スクラッチでの計測など、指示書の範囲に収まるもの
    - 拒否を推す: ロックを通さない共有リソースの操作・ほかの worktree への書き込み・コミットやプッシュ・外部への書き込み
    - 拒否されたら、そのワーカーに理由と代わりのやり方を送る

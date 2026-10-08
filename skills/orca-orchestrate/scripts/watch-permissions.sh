@@ -18,6 +18,7 @@ if [[ $# -eq 0 ]]; then
   exit 1
 fi
 
+for a in "$@"; do [[ -n "$a" ]] || { echo "ペインの ref が空です" >&2; exit 1; }; done
 declare -a surfaces=("$@")
 declare -a last_sig=()
 for i in "${!surfaces[@]}"; do last_sig[$i]=""; done

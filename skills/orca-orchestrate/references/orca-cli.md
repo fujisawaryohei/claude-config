@@ -64,10 +64,14 @@ orca terminal close  --terminal <handle> [--tab] --json
 
 - **`split` の向き:** `horizontal` は左右、`vertical` は上下に分ける（help の記述。新しいペインがどちら側に出るかは画面で見ていない）。cmux の `right` / `down` に当たる
 - **`split --json` の出力:** `result.split.handle` に新しいペインの `term_…`。ほかに `tabId`・`leafId`
-- **`split --command`:** シェルの起動の後に、そのコマンドを打ち込む形で回る。コマンドが終わってもペインはシェルとして残る（cmux の `send` ＋ `Enter` と同じ結果を 1 回で出せる）
+- **`split --command`:** シェルの起動の後に、そのコマンドを打ち込む形で回る。コマンドが終わってもペインはシェルとして残る。**ただし、同じ日の後半に `--command` 付きの分割が続けて「Timed out waiting for split pane handle」で失敗し、ペインも作られなかった**（付けない分割は通った。原因は未確認）。`mux.sh split` は `--command` を使わず、分割してから `terminal send` で送る
+- **`split` の失敗:** `ok: false` と `error.message` が返り、`result.split.handle` は無い。ref を取り出せなかったら、そのまま次の操作に渡さない
 - **`send --enter`:** 改行まで送る（cmux のように `send-key Enter` を別に送らなくてよい）。シェルに送ると `warnings` に「この provider は届いたかを報告できない」と出るが、届いている。Claude Code のような TUI には `--wait-submit <秒>` で、入力がターンとして始まったかまで確かめられる（help の記述）
 - **`read`（--json なし）:** 先頭に `handle:`・`status:`・`cursor:` などの見出しと（切り詰めたときは）`warning:` の行、空行の後に本文が出る。`--json` では `result.terminal.tail` が行の配列
-- **`read` は画面そのものではなく、出力の流れの末尾を返す。** `clear` の前の行も混ざって返った。`watch-permissions.sh` は偽の確認の画面（`Do you want to proceed?` ＋ `❯ 1. Yes` を printf で出した）を見つけ、消した後に「解消」も出した。ただし本物の Claude Code の TUI の確認の画面では、まだ回していない
+- **`read` は画面そのものではなく、出力の流れの末尾を返す。** シェルでは `clear` の前の行も混ざって返った。**Claude Code の TUI に対しては、最後に描き直した 1 行（`✳ Puttering…` など）しか返らない**（描き直しはカーソルの移動で行われ、行として流れに残らないため）。TUI の画面を読む道具にはならない
+- **`show`（と `list`）の `preview`:** 画面の最後の数行が `\n` 区切りの文字列で入る。Claude Code が止まっているときは最後の 6 行ほど（入力欄の `❯ …` を含む）、処理中はスピナーの 1 行（`✳ Puttering… (1m 5s · ↓ 3.7k tokens)`）。`mux.sh read` はこれを使う。偽の確認の画面（`Do you want to proceed?` ＋ `❯ 1. Yes`）は preview から拾えた
+- **`show` の `title`:** Claude Code が付ける題（例: `◐ fitbit-agent-orchestration の s1-2 タスク`）。先頭の記号が処理中に変わる。`agentIdentity` は、`cd && claude` で起動したペインにも `claude` と付いた
+- **`--terminal ""`（空）:** エラーにならず、アクティブなターミナルを対象にする。空の ref を渡さない
 - **`rename` はタブの名前を変える。** 分割したペインはタブを共有するので、ペインごとの名前にならない（付けた名前が別のペインの欄に出た）。ペインは `launch-panes.sh` の出力の対応表（呼び名 → ハンドル）で見分ける
 - **`close`:** 分割したペインを 1 つずつ閉じられる。`--tab` を付けるとタブごと
 
@@ -87,7 +91,7 @@ help・手引きにある注意:
 | 下に分割 | `cmux new-split down --surface <s>` | `orca terminal split --terminal <h> --direction vertical --json` |
 | ペインの名前 | `cmux rename-tab --surface <s> <名前>` | 無い（`terminal rename` はタブの名前） |
 | 文字を送る | `cmux send --surface <s> <文字>` ＋ `cmux send-key --surface <s> Enter` | `orca terminal send --terminal <h> --text <文字> --enter` |
-| 画面を読む | `cmux read-screen --surface <s> --lines <n>` | `orca terminal read --terminal <h> --limit <n>` |
+| 画面を読む | `cmux read-screen --surface <s> --lines <n>` | `orca terminal show --terminal <h> --json` の `preview`（`terminal read` は TUI では 1 行しか返らない） |
 | ユーザーへの通知 | `cmux notify --title … --body …` | 通知のコマンドは無い。`orca worktree set --worktree id:<ORCA_WORKTREE_ID> --comment "<文>" --unread`（サイドバーのカードにコメントと未読の印） |
 | 閉じる | `cmux close-surface --surface <s>` | `orca terminal close --terminal <h>` |
 | TUI が落ち着くまで待つ | 無い（画面を読んで見る） | `orca terminal wait --for tui-idle` |
@@ -127,5 +131,6 @@ orca orchestration worker-release --dispatch <dispatch_id> --json
 ## 確かめていないこと
 
 - `orca worktree set --unread` の通知が、ユーザーにどう見えるか（サイドバーの印だけか、OS の通知も出るか）
-- ワーカーの Claude Code が許可の確認で止まったときに、`terminal show` の `agentWait` が何を返すか（今は画面の文字で見つけている）
+- ワーカーの Claude Code が許可の確認で止まったときに、`terminal show` の `agentWait` と `preview` が何を返すか（試運転ではワーカーが auto モードで、確認が 1 度も出なかった。止まって入力を待っているときも `agentWait` は `null` だった）
+- `split --command` が時間切れになる原因
 - `split` で新しいペインにフォーカスが移るか（cmux の `--focus false` に当たる指定は無い）

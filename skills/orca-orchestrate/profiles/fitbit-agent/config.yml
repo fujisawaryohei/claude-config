@@ -1,0 +1,27 @@
+worktree:
+  base_branch: main
+  dir: ../{id}-{slug}
+  branch: fix/{id}-{slug}                # 規約は無い。type は Issue の種別に合わせる
+  bootstrap: "uv sync"
+  must_exist: [.venv]                    # frontend を触るタスクでは frontend/node_modules も（cd frontend && npm ci）
+  after_bootstrap: ""
+assets: {}
+workers:
+  model: claude-sonnet-5-5
+  per_task: {}
+env: {}
+shared_resources: {}                     # テストは DB を使わないので、テストだけならロックは要らない
+  # 動作確認（Phase 7）で 1 組を取り合うもの: 5432（docker compose の postgres）・8000（make server）・3000（make frontend）・OAuth の Callback・ngrok
+  # restore_hint: メイン checkout で docker compose up -d → make server / make frontend
+verify:
+  default: "uv run pytest backend/tests/ agent/tests/ --ignore=agent/tests/test_planning_tools_llm.py -q"
+review:
+  agents: [code-review, security-review]
+tickets:
+  show: "gh issue view {ticket} --repo fujisawaryohei/fitbit-agent --json number,title,body,comments"
+  assign: ""
+  create: ""                             # skill issue-create を使う
+rules:
+  no_commit: true
+  language: ja
+  docs_sync: ""                          # 明文化されたルールは無い。aidlc-docs を直す案はステータスに書かせる
