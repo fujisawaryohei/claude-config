@@ -9,7 +9,7 @@
 - Issue 起点の全自動実行は TAKT の issue-driven-dev ／ .takt/workflows/issue-driven-dev.yaml
 
 ## 2. 検証
-- バックエンドとエージェントのテスト: `uv run pytest backend/tests/ agent/tests/ --ignore=agent/tests/test_planning_tools_llm.py -q`。ホストで回す ／ README.md:161
+- バックエンドとエージェントのテスト: `uv run pytest backend/tests/ agent/tests/ -q`。ホストで回す。README（:161）は `test_planning_tools_llm.py` を `--ignore` するが、このファイルは LLM をモックにしていて DB・AWS 無しで 4 件とも通る（2026-10-09 に確認）ので外さない ／ README.md:161
 - テストはほぼモックで完結する（conftest の container fixture）。ただし `backend/tests/controllers/test_chat.py` の `test_no_cookie_returns_401` 3 件は DB（5432）に接続し、DB が起動していないと落ちる（2026-10-09 に main で確認。DB 無しで 109 passed / 3 failed） ／ backend/tests/conftest.py
 - カバレッジの目標は 80% ／ README.md:164
 - mypy・ruff は設定だけあり、skill から実行されていない ／ pyproject.toml:36-64

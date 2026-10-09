@@ -14,7 +14,7 @@ shared_resources: {}                     # テストは DB を使わないので
   # 動作確認（Phase 7）で 1 組を取り合うもの: 5432（docker compose の postgres）・8000（make server）・3000（make frontend）・OAuth の Callback・ngrok
   # restore_hint: メイン checkout で docker compose up -d → make server / make frontend
 verify:
-  default: "uv run pytest backend/tests/ agent/tests/ --ignore=agent/tests/test_planning_tools_llm.py -q"
+  default: "uv run pytest backend/tests/ agent/tests/ -q"   # test_planning_tools_llm.py は LLM をモックにしていて DB・AWS 無しで通る（2026-10-09 に確認）
 review:
   agents: [code-review, security-review]
 tickets:
