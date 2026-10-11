@@ -25,10 +25,12 @@ while true; do
       # 確認の画面の中身（コマンドの本文〜「Do you want to」）を 1 行に畳む。
       # Claude Code はコマンドの本文と質問の間に区切りの線（╌）を引くので、線は捨てるだけで中身は残す
       body="$(awk '/Do you want to/{print buf $0; exit} !/^[[:space:]]*(╌|─)+[[:space:]]*$/{buf=buf $0 "\n"}' <<< "${screen}" \
-        | sed -E 's/^[[:space:]│⎿]+//' | grep -v -E '^$' | tail -14 | tr '\n' ' ' | cut -c1-700)"
+        | sed -E 's/^[[:space:]│⎿]+//' | grep -v -E '^$' | tail -14 | tr '\n' ' ')"
+      body="$(printf '%s' "${body}" | sed -E 's/[⏺✢✽✳✻✶·⎿]//g; s/Running [0-9]+ shell commands?…//g; s/\([0-9]+m ?[0-9]*s[^)]*\)//g; s/[[:space:]]+/ /g')"
+      # 同じ確認かは、スピナーの記号・経過時間・「Running…」の行を除いた本文で比べる（画面の飾りの変化で何度も知らせないため）
       sig="$(printf '%s' "${body}" | cksum | awk '{print $1}')"
       if [[ "${sig}" != "${last_sig[$i]}" ]]; then
-        echo "許可の確認 ${s}: ${body}"
+        echo "許可の確認 ${s}: ${body:0:700}"
         last_sig[$i]="${sig}"
       fi
     elif [[ -n "${last_sig[$i]}" ]]; then

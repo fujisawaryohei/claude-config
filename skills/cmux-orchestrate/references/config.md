@@ -34,7 +34,8 @@ shared_resources: {}                    # 1 組を取り合うもの（ローカ
 verify:
   default: ""                           # ワーカーが完了の前に回す検証（例: make test・pnpm test）
 review:
-  agents: []                            # オーケストレーターがレビューに使うサブエージェント（無ければ一般の code-reviewer）
+  skill: ""                             # レビューの段で使う PJ の skill（例: dev-review）。あれば最優先。disable-model-invocation なら新しいペインで起動する
+  agents: []                            # skill が無いときにオーケストレーターが使うサブエージェント（無ければ一般の code-reviewer）
 tickets:                                # 任意。チケットを使わないなら丸ごと書かない
   show: ""                              # 例: gh issue view {ticket} ／ az boards work-item show --id {ticket}
   assign: ""

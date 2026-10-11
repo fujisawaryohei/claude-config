@@ -1,0 +1,34 @@
+/* planning-explainer の予備のスタイル。プロジェクトに資料用の doc.css が無いときだけ、doc.css として写して使う。
+   template.html が使うクラスだけを定義する。 */
+:root {
+  --pe-text: #1f1f1f;
+  --pe-muted: #5c5c66;
+  --pe-border: #e3dcef;
+  --pe-surface: #ffffff;
+  --pe-bg: #faf9fc;
+  --pe-accent: #7500c0;
+  --pe-code-bg: #f3eef9;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--pe-bg); color: var(--pe-text);
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif; font-size: 14px; line-height: 1.7; }
+.doc-page { max-width: 1400px; margin: 0 auto; padding: 32px 40px 64px; }
+.design-system-page-header { border-bottom: 1px solid var(--pe-border); margin-bottom: 32px; padding-bottom: 20px; }
+.design-system-page-header__title { font-size: 24px; margin: 0 0 8px; }
+.design-system-page-header__description { color: var(--pe-muted); margin: 0 0 12px; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; color: var(--pe-muted); font-size: 12px; }
+.doc-section { margin-bottom: 48px; }
+.doc h2 { font-size: 18px; margin: 0 0 16px; }
+.doc h3 { font-size: 15px; margin: 28px 0 12px; }
+.doc-figure { background: var(--pe-surface); border: 1px solid var(--pe-border); border-radius: 8px; padding: 20px; }
+.doc-figure pre.mermaid { display: flex; justify-content: center; margin: 0; background: none; overflow-x: auto; }
+.doc-figure pre.mermaid.doc-seq svg { min-width: 1400px; }
+.doc-figure-cap { margin-top: 12px; color: var(--pe-muted); font-size: 12px; }
+.doc-figure-cap b { color: var(--pe-accent); margin-right: 4px; }
+.doc-figure-src { display: block; margin-top: 4px; font-size: 11px; }
+.doc-table-wrap { overflow-x: auto; background: var(--pe-surface); border: 1px solid var(--pe-border); border-radius: 8px; }
+.design-system-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.design-system-table th, .design-system-table td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--pe-border); }
+.design-system-table th { color: var(--pe-muted); font-weight: 600; }
+.design-system-code--inline { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+  background: var(--pe-code-bg); border-radius: 4px; padding: 1px 4px; word-break: break-all; }

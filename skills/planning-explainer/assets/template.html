@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{タイトル}}</title>
+  <link rel="stylesheet" href="doc.css" />
+</head>
+<body>
+  <main class="doc doc-page">
+    <header class="design-system-page-header">
+      <div class="design-system-page-header__inner">
+        <h1 class="design-system-page-header__title">{{タイトル}}</h1>
+        <p class="design-system-page-header__description">{{何をするための資料か。もう在る土台と、残っている穴を 1〜2 文で}}</p>
+        <div class="doc-meta">
+          <span>更新日: {{YYYY-MM-DD}}</span>
+          <span>前提: {{ユーザーが決めたこと}}</span>
+          <span>凡例: 【新規】{{チケット}} で追加 ／【変更】既存を改修 ／ 印なしは既存</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ 図 1 ============ -->
+    <section class="doc-section" id="flow-1">
+      <h2>図 1. {{流れの名前}}：{{この図で言いたいこと}}</h2>
+      <div class="doc-figure">
+        <pre class="mermaid doc-seq">
+%%{init: {"sequence": {"mirrorActors": false, "messageMargin": 16, "boxMargin": 8, "noteMargin": 8, "actorMargin": 18}}}%%
+sequenceDiagram
+  autonumber
+  participant FE as フロントエンド
+  box rgb(250,245,255) API 層
+    participant R as {{router}}
+  end
+  box rgb(243,232,255) Service 層
+    participant S as {{Service}}【変更】
+  end
+  box rgb(250,245,255) Repository 層
+    participant RP as {{Repository}}
+  end
+  box rgb(245,245,245) 外部
+    participant X as {{DB・キャッシュ・外部 API}}
+  end
+
+  FE->>R: {{HTTP メソッドとパス}}
+  R->>S: {{メソッド}}
+  S->>RP: {{メソッド}}【変更】
+  R-->>FE: {{応答}}
+        </pre>
+        <div class="doc-figure-cap"><b>図 1</b>　{{図だけでは読めないこと。なぜこの順か・何を変えないか}}<span class="doc-figure-src">{{補足}}</span></div>
+      </div>
+
+      <h3>図 1 のレイヤーとファイル</h3>
+      <div class="doc-table-wrap">
+        <table class="design-system-table">
+          <thead><tr><th>レイヤー</th><th>ファイル</th><th>クラス・関数</th><th>変更</th></tr></thead>
+          <tbody>
+            <tr><td>{{層}}</td><td><code class="design-system-code design-system-code--inline">{{path}}</code>【変更】</td><td><code class="design-system-code design-system-code--inline">{{symbol}}</code></td><td>{{何を変えるか}}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 図 2（既存の経路を使う流れは flowchart で短く） ============ -->
+    <section class="doc-section" id="flow-2">
+      <h2>図 2. {{流れの名前}}</h2>
+      <div class="doc-figure">
+        <pre class="mermaid">
+flowchart LR
+  A["{{入口}}"] --> B["{{既存の部品}}"]
+  B --> C["{{変わるところ}}【変更】"]
+        </pre>
+        <div class="doc-figure-cap"><b>図 2</b>　{{説明}}</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="doc-mermaid-init.js"></script>
+</body>
+</html>
