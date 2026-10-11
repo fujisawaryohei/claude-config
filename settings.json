@@ -351,5 +351,11 @@
         "repo": "aws/agent-toolkit-for-aws"
       }
     }
-  }
+  },
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "model": "opus"
 }
